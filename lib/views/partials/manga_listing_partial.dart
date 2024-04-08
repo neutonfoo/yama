@@ -1,6 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:yama/utils/manga_gateway.dart';
-import 'package:yama/views/manga_details_view.dart';
+import 'package:yama/views/manga_chapters_view.dart';
 
 class MangaListingPartial extends StatelessWidget {
   const MangaListingPartial({
@@ -31,7 +32,7 @@ class MangaListingPartial extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: Image.network(manga.coverUrl),
+              child: CachedNetworkImage(imageUrl: manga.coverUrl),
             ),
             Expanded(
               flex: 2,
@@ -91,7 +92,8 @@ class MangaListingPartial extends StatelessWidget {
                         ),
                       ],
                     ],
-                  )),
+                ),
+              ),
             )
           ],
         ),

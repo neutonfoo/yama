@@ -29,10 +29,8 @@ class MangaListingsPartial extends StatelessWidget {
             ),
           );
         }
-        return const Expanded(
-          child: Center(
-            child: CircularProgressIndicator(),
-          ),
+        return const Center(
+          child: CircularProgressIndicator(),
         );
       },
     );

@@ -3,14 +3,14 @@ import 'package:yama/utils/manga_gateway.dart';
 import 'package:yama/views/partials/manga_listings_partial.dart';
 import 'package:yama/views/partials/manga_search_delegate.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomeView extends StatefulWidget {
+  const HomeView({super.key});
 
   @override
-  State<StatefulWidget> createState() => _HomePage();
+  State<StatefulWidget> createState() => _HomeViewState();
 }
 
-class _HomePage extends State<HomePage> {
+class _HomeViewState extends State<HomeView> {
   Future<List<Manga>> mangas = MangaGateway.fetchHome();
 
   @override

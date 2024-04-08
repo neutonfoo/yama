@@ -1,12 +1,13 @@
 // https://docs.flutter.dev/cookbook/networking/fetch-data
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 class Manga {
   final String name;
-  final String url;
+  final String id;
   final String coverUrl;
   final String? status;
   final int? yearStarted;
@@ -19,7 +20,7 @@ class Manga {
 
   Manga({
     required this.name,
-    required this.url,
+    required this.id,
     required this.coverUrl,
     required this.status,
     required this.yearStarted,
@@ -33,7 +34,7 @@ class Manga {
     return switch (json) {
       {
         'name': String name,
-        'url': String url,
+        'id': String id,
         'coverUrl': String coverUrl,
         'status': String? status,
         'yearStarted': int? yearStarted,
@@ -44,7 +45,7 @@ class Manga {
       } =>
         Manga(
           name: name,
-          url: url,
+          id: id,
           coverUrl: coverUrl,
           status: status,
           yearStarted: yearStarted,
@@ -79,20 +80,20 @@ class Manga {
 
 class MangaChapter {
   final String name;
-  final String url;
+  final String id;
   List<String> pages = [];
 
-  MangaChapter({required this.name, required this.url});
+  MangaChapter({required this.name, required this.id});
 
   factory MangaChapter.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
         'name': String name,
-        'url': String url,
+        'id': String id,
       } =>
         MangaChapter(
           name: name,
-          url: url,
+          id: id,
         ),
       _ => throw const FormatException('Failed to load manga chapters.'),
     };
@@ -100,8 +101,7 @@ class MangaChapter {
 }
 
 class MangaGateway {
-  static const String baseUrl = "http://192.168.0.181:3000";
-  // static const String baseUrl = "http://localhost:3000";
+  static String baseUrl = dotenv.env['API_URL'] ?? "";
 
   static Future<List<Manga>> fetchHome() async {
     final response = await http.post(
@@ -141,7 +141,7 @@ class MangaGateway {
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode({"url": manga.url}));
+        body: jsonEncode({"mangaId": manga.id}));
 
     if (response.statusCode == 200) {
       Iterable mangaChaptersRaw = jsonDecode(response.body);
@@ -158,7 +158,7 @@ class MangaGateway {
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode({"url": manga.url, "chapterUrl": chapter.url}));
+        body: jsonEncode({"mangaId": manga.id, "chapterId": chapter.id}));
 
     if (response.statusCode == 200) {
       Iterable mangaChapterPagesRaw = jsonDecode(response.body);
@@ -166,5 +166,15 @@ class MangaGateway {
     } else {
       throw Exception('Failed to load search results');
     }
+  }
+}
+
+class MangaDatabase {
+  static late final Database database;
+
+  static loadDatabase() async {
+    database = await openDatabase(
+      join(await getDatabasesPath(), 'doggie_database.db'),
+    );
   }
 }

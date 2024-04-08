@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:yama/views/main/main_screen.dart';
+import 'package:yama/utils/manga_gateway.dart';
+import 'package:yama/views/home/main_container_view.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class UIElementsState extends ChangeNotifier {
   bool showUIElements = true;
@@ -19,13 +21,18 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
         theme: ThemeData.dark(useMaterial3: false),
         debugShowCheckedModeBanner: false,
-        home: const MainScreen());
+        home: const MainContainerView());
   }
 }
 
-void main() => runApp(
-      ChangeNotifierProvider(
-        create: (BuildContext context) => UIElementsState(),
-        child: const MainApp(),
-      ),
-    );
+void main() async {
+  await dotenv.load(fileName: ".env");
+  await MangaDatabase.loadDatabase();
+
+  return runApp(
+    ChangeNotifierProvider(
+      create: (BuildContext context) => UIElementsState(),
+      child: const MainApp(),
+    ),
+  );
+}

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yama/utils/manga_gateway.dart';
-import 'package:yama/views/manga_chapter_view.dart';
+import 'package:yama/views/manga_read_view.dart';
 
 class MangaChapterRowPartial extends StatelessWidget {
   const MangaChapterRowPartial({
@@ -24,7 +24,7 @@ class MangaChapterRowPartial extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => MangaChapterView(
+                builder: (context) => MangaReadView(
                   manga: manga,
                   chapterIndex: chapterIndex,
                 ),
@@ -32,7 +32,7 @@ class MangaChapterRowPartial extends StatelessWidget {
             )
           },
           child: Center(
-            child: Text("${chapter.name} ${chapter.url}"),
+            child: Text(chapter.name),
           ),
         ),
       ),

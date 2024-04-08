@@ -33,12 +33,14 @@ class MangaSearchDelegate extends SearchDelegate<Manga?> {
       return const Center(
         child: Text("Please enter a search term."),
       );
+    } else if (query.length < 3) {
+      return const Center(
+        child: Text("Please enter at least 3 characters."),
+      );
     }
 
-    Future<List<Manga>> searchResults = MangaGateway.fetchMangas(query);
-
     return MangaListingsPartial(
-      mangas: searchResults,
+      mangas: MangaGateway.fetchMangas(query),
     );
   }
 
