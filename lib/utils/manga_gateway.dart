@@ -62,7 +62,16 @@ class Manga {
     if (chapters.isNotEmpty) {
       return chapters;
     }
+    
+    // If not cached, get initial list and set .isRead
     chapters = await MangaGateway.fetchChapters(this);
+
+    final readChapters = await MangaDatabase.getReadChapters(id);
+
+    for (var readChapter in readChapters) {
+      chapters[readChapter].isRead = true;
+    }
+
     return chapters;
   }
 
@@ -81,20 +90,21 @@ class Manga {
 class MangaChapter {
   final String name;
   final String id;
-  List<String> pages = [];
+  final int index;
 
-  MangaChapter({required this.name, required this.id});
+  List<String> pages = [];
+  bool isRead = false;
+
+  MangaChapter({required this.name, required this.id, required this.index});
 
   factory MangaChapter.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
         'name': String name,
         'id': String id,
+        'index': int index,
       } =>
-        MangaChapter(
-          name: name,
-          id: id,
-        ),
+        MangaChapter(name: name, id: id, index: index),
       _ => throw const FormatException('Failed to load manga chapters.'),
     };
   }
@@ -173,8 +183,55 @@ class MangaDatabase {
   static late final Database database;
 
   static loadDatabase() async {
+    // await deleteDatabase(join(await getDatabasesPath(), 'manga_database.db'));
+
     database = await openDatabase(
-      join(await getDatabasesPath(), 'doggie_database.db'),
+      join(await getDatabasesPath(), 'manga_database.db'),
+      version: 1,
+      onCreate: (db, version) {
+        // Run the CREATE TABLE statement on the database.
+        db.execute(
+          'CREATE TABLE chapters (manga_id TEXT, chapter_id TEXT, chapter_index INTEGER, is_read INTEGER, is_downloaded INTEGER, PRIMARY KEY (manga_id, chapter_id))',
+        );
+
+        db.execute(
+            'CREATE TABLE manga (id TEXT PRIMARY KEY, name TEXT, rating TEXT, follows TEXT, chapters TEXT, status TEXT, last_uploaded TEXT)');
+      },
     );
+  }
+
+  static getReadChapters(String mangaId) async {
+    final mangaReadChapters = await database.query('chapters',
+        columns: ["chapter_index"],
+        where: 'manga_id = ? AND is_read = 1',
+        whereArgs: [mangaId]);
+
+    if (mangaReadChapters.isEmpty) {
+      return [];
+    }
+
+    return mangaReadChapters
+        .map(
+          (e) => e["chapter_index"],
+        )
+        .toList();
+  }
+
+  static updateReadChapter(
+    String mangaId,
+    String chapterId,
+    int chapterIndex, {
+    bool setRead = true,
+  }) async {
+    await database.insert(
+        'chapters',
+        {
+          "manga_id": mangaId,
+          "chapter_id": chapterId,
+          "chapter_index": chapterIndex,
+          "is_read": setRead ? 1 : 0,
+          "is_downloaded": 0,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 }

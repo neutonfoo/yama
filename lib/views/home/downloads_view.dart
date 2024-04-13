@@ -13,10 +13,7 @@ class _DownloadsViewState extends State<DownloadsView> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        title: const Text(
-          'Downloads',
-          style: TextStyle(fontFamily: 'PaletteMosaic'),
-        ),
+        title: const Text('Downloads'),
       ),
       body: const Padding(padding: EdgeInsets.all(8.0), child: Text("Hello")),
     );

@@ -19,7 +19,19 @@ class MangaChaptersView extends StatefulWidget {
   }
 }
 
+enum MangaChaptersViewStateEditModes {
+  viewMode,
+  editMode,
+  // downloadMode,
+}
+
 class _MangaChaptersViewState extends State<MangaChaptersView> {
+  MangaChaptersViewStateEditModes currentEditMode =
+      MangaChaptersViewStateEditModes.viewMode;
+
+  late final Future<List<MangaChapter>> chapters =
+      Future.value(widget.manga.getChapters());
+
   final ScrollController _controller = ScrollController();
   final double _height = 50.0;
 
@@ -51,29 +63,75 @@ class _MangaChaptersViewState extends State<MangaChaptersView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.manga.name),
+        actions: [
+          MenuAnchor(
+            builder: (BuildContext context, MenuController controller,
+                Widget? child) {
+              return IconButton(
+                onPressed: () {
+                  if (controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
+                },
+                icon: const Icon(Icons.more_horiz),
+                tooltip: 'Show menu',
+              );
+            },
+            menuChildren: [
+              MenuItemButton(
+                child: const Text("Toggle read"),
+                onPressed: () {
+                  if (currentEditMode ==
+                      MangaChaptersViewStateEditModes.editMode) {
+                    setState(() {
+                      currentEditMode =
+                          MangaChaptersViewStateEditModes.viewMode;
+                    });
+                  } else {
+                    setState(() {
+                      currentEditMode =
+                          MangaChaptersViewStateEditModes.editMode;
+                    });
+                  }
+                },
+              ),
+              const MenuItemButton(
+                child: Text("Download"),
+              ),
+            ],
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: FutureBuilder(
-          future: widget.manga.getChapters(),
+          future: chapters,
           builder: (context, snapshot) {
             if (snapshot.hasData &&
                 snapshot.connectionState == ConnectionState.done) {
               return Scaffold(
                 body: ListView(
+                  key: const PageStorageKey("MangaListingKey1"),
                   controller: _controller,
                   children: [
                     mangaListing,
-                    ListView.builder(
+                    ListView.separated(
+                      key: const PageStorageKey("MangaListingKey2"),
                       physics: const ClampingScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: snapshot.data!.length,
+                      controller: _controller,
                       itemBuilder: (context, index) => MangaChapterRowPartial(
+                        editMode: currentEditMode,
                         manga: widget.manga,
-                        chapter: snapshot.data![index],
                         chapterIndex: index,
                       ),
-                    )
+                      separatorBuilder: (BuildContext context, int index) {
+                        return const Divider(height: 0);
+                      },
+                    ),
                   ],
                 ),
                 floatingActionButton: FloatingActionButton(

@@ -7,11 +7,16 @@ import 'package:yama/utils/manga_gateway.dart';
 import 'package:photo_view/photo_view.dart';
 
 class MangaReadView extends StatefulWidget {
-  const MangaReadView(
-      {super.key, required this.manga, required this.chapterIndex});
+  const MangaReadView({
+    super.key,
+    required this.manga,
+    required this.chapterIndex,
+    required this.readChapterCallback,
+  });
 
   final Manga manga;
   final int chapterIndex;
+  final void Function(int chapterIndex) readChapterCallback;
 
   @override
   State<StatefulWidget> createState() {
@@ -20,6 +25,7 @@ class MangaReadView extends StatefulWidget {
 }
 
 class _MangaReadViewState extends State<MangaReadView> {
+  late int _currentChapterIndex;
   int _currentPage = 0;
   bool isLoading = true;
   late List<CachedNetworkImageProvider> _images = [];
@@ -27,11 +33,13 @@ class _MangaReadViewState extends State<MangaReadView> {
   @override
   void initState() {
     super.initState();
+    _currentChapterIndex = widget.chapterIndex;
     fetchChapterPages();
   }
 
   fetchChapterPages() async {
-    final images = await widget.manga.getChapter(widget.chapterIndex);
+    isLoading = true;
+    final images = await widget.manga.getChapter(_currentChapterIndex);
     final cachedImages =
         images.map((image) => CachedNetworkImageProvider(image));
 
@@ -40,6 +48,8 @@ class _MangaReadViewState extends State<MangaReadView> {
       _images = cachedImages.toList();
       isLoading = false;
     });
+
+    widget.readChapterCallback(_currentChapterIndex);
   }
 
   @override
@@ -50,9 +60,22 @@ class _MangaReadViewState extends State<MangaReadView> {
     return Scaffold(
       appBar: showUIElements
           ? AppBar(
-              title: _currentPage == 0
-                  ? const Text("Loading")
-                  : Text("Page $_currentPage of ${_images.length}"),
+              title: isLoading
+                  ? Text(
+                      "${widget.manga.name} ${widget.manga.chapters[_currentChapterIndex].name}")
+                  : Text(
+                      "${widget.manga.chapters[_currentChapterIndex].name}: Page $_currentPage of ${_images.length}"),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.navigate_next),
+                  onPressed: () {
+                    setState(() {
+                      _currentChapterIndex += 1;
+                    });
+                    fetchChapterPages();
+                  },
+                ),
+              ],
             )
           : null,
       body: isLoading
@@ -69,7 +92,7 @@ class _MangaReadViewState extends State<MangaReadView> {
               builder: (context, index) {
                 return PhotoViewGalleryPageOptions(
                   imageProvider: _images[index],
-                  minScale: PhotoViewComputedScale.contained * 0.5,
+                  minScale: PhotoViewComputedScale.contained * 0.8,
                   maxScale: PhotoViewComputedScale.covered * 2,
                   onTapUp: (context, details, controllerValue) => {
                     Provider.of<UIElementsState>(context, listen: false)

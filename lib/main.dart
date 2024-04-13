@@ -19,13 +19,22 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        theme: ThemeData.dark(useMaterial3: false),
-        debugShowCheckedModeBanner: false,
-        home: const MainContainerView());
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.indigo,
+          brightness: Brightness.dark,
+        ),
+      ),
+      debugShowCheckedModeBanner: false,
+      home: const MainContainerView(),
+    );
   }
 }
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   await dotenv.load(fileName: ".env");
   await MangaDatabase.loadDatabase();
 

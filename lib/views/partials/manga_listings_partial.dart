@@ -2,13 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:yama/utils/manga_gateway.dart';
 import 'package:yama/views/partials/manga_listing_partial.dart';
 
-class MangaListingsPartial extends StatelessWidget {
+class MangaListingsPartial extends StatefulWidget {
   const MangaListingsPartial({
     super.key,
     required this.mangas,
   });
 
   final Future<List<Manga>> mangas;
+
+  @override
+  State<StatefulWidget> createState() {
+    return _MangaListingsPartialState();
+  }
+}
+
+class _MangaListingsPartialState extends State<MangaListingsPartial> {
+  late final Future<List<Manga>> mangas = Future.value(widget.mangas);
 
   @override
   Widget build(BuildContext context) {

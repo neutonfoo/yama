@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:yama/main.dart';
 import 'package:yama/utils/manga_gateway.dart';
-import 'package:yama/views/manga_chapters_view.dart';
+import 'package:yama/views/home/downloads_view.dart';
 import 'package:yama/views/home/home_view.dart';
 
 class MainContainerView extends StatefulWidget {
@@ -14,61 +12,35 @@ class MainContainerView extends StatefulWidget {
 
 class _MainContainerViewState extends State<MainContainerView> {
   late Future<List<Manga>> searchResults;
-  int _bottomBarSelectedIndex = 0;
-
-  void _onBottomBarTapped(int index) {
-    setState(() {
-      _bottomBarSelectedIndex = index;
-    });
-  }
+  int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _bottomBarSelectedIndex == 0
-          ? Navigator(
-              onGenerateRoute: (settings) {
-                Widget page = const HomeView();
-
-                if (settings.name == MangaChaptersView.routeName) {
-                  final args = settings.arguments as MangaChaptersViewArguments;
-                  page = MangaChaptersView(manga: args.manga);
-                }
-
-                return MaterialPageRoute(builder: (_) => page);
-              },
-            )
-          : const Text("Hello"),
-//           Navigator(
-//               onGenerateRoute: (settings) {
-//                 Widget page = const DownloadsView();
-//
-//                 if (settings.name == MangaChaptersView.routeName) {
-//                   final args = settings.arguments as MangaChaptersViewArguments;
-//                   page = MangaChaptersView(manga: args.manga);
-//                 }
-//
-//                 return MaterialPageRoute(builder: (_) => page);
-//               },
-//             ),
-      bottomNavigationBar: Visibility(
-        visible: Provider.of<UIElementsState>(context).showUIElements,
-        child: BottomNavigationBar(
-          onTap: (value) => _onBottomBarTapped(value),
-          currentIndex: _bottomBarSelectedIndex,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.download),
-              label: 'Downloads',
-            )
-          ],
-        ),
+      body: IndexedStack(
+        index: currentPageIndex,
+        children: const [HomeView(), DownloadsView()],
+      ),
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPageIndex = index;
+          });
+        },
+        selectedIndex: currentPageIndex,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+        destinations: const <Widget>[
+          NavigationDestination(
+            selectedIcon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.download),
+            icon: Icon(Icons.download_outlined),
+            label: 'Downloads',
+          ),
+        ],
       ),
     );
   }

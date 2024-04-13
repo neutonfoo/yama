@@ -20,78 +20,81 @@ class MangaListingPartial extends StatelessWidget {
       child: InkWell(
         onTap: () => {
           if (!inDetailsView)
-            {
-              Navigator.pushNamed(
-                context,
-                MangaChaptersView.routeName,
-                arguments: MangaChaptersViewArguments(manga: manga),
-              )
-            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MangaChaptersView(
+                  manga: manga,
+                ),
+              ),
+            )
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: CachedNetworkImage(imageUrl: manga.coverUrl),
+              child: CachedNetworkImage(
+                imageUrl: manga.coverUrl,
+              ),
             ),
             Expanded(
               flex: 2,
               child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        manga.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
-                        ),
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      manga.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
                       ),
-                      if (manga.rating != null || manga.follows != null) ...[
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            if (manga.rating != null)
-                              Text("Rating ${manga.rating}"),
-                            if (manga.rating != null && manga.follows != null)
-                              const Text(" • "),
-                            if (manga.follows != null)
-                              Text("${manga.follows} Follows")
-                          ],
-                        )
-                      ],
-                      if (manga.numberOfChapters != null ||
-                          manga.status != null) ...[
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            if (manga.numberOfChapters != null) ...[
-                              Text("${manga.numberOfChapters} Chapters"),
-                            ],
-                            if (manga.numberOfChapters != null &&
-                                manga.status != null)
-                              const Text(" "),
-                            if (manga.status != null) Text("(${manga.status})"),
-                          ],
-                        ),
-                      ],
-                      if (manga.yearStarted != null ||
-                          manga.lastUpdated != null) ...[
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            if (manga.yearStarted != null)
-                              Text("From ${manga.yearStarted}"),
-                            if (manga.yearStarted != null &&
-                                manga.lastUpdated != null)
-                              const Text(" • "),
-                            if (manga.lastUpdated != null)
-                              Text("${manga.lastUpdated}")
-                          ],
-                        ),
-                      ],
+                    ),
+                    if (manga.rating != null || manga.follows != null) ...[
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          if (manga.rating != null)
+                            Text("Rating ${manga.rating}"),
+                          if (manga.rating != null && manga.follows != null)
+                            const Text(" • "),
+                          if (manga.follows != null)
+                            Text("${manga.follows} Follows")
+                        ],
+                      )
                     ],
+                    if (manga.numberOfChapters != null ||
+                        manga.status != null) ...[
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          if (manga.numberOfChapters != null) ...[
+                            Text("${manga.numberOfChapters} Chapters"),
+                          ],
+                          if (manga.numberOfChapters != null &&
+                              manga.status != null)
+                            const Text(" "),
+                          if (manga.status != null) Text("(${manga.status})"),
+                        ],
+                      ),
+                    ],
+                    if (manga.yearStarted != null ||
+                        manga.lastUpdated != null) ...[
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          if (manga.yearStarted != null)
+                            Text("From ${manga.yearStarted}"),
+                          if (manga.yearStarted != null &&
+                              manga.lastUpdated != null)
+                            const Text(" • "),
+                          if (manga.lastUpdated != null)
+                            Text("${manga.lastUpdated}")
+                        ],
+                      ),
+                    ],
+                  ],
                 ),
               ),
             )
